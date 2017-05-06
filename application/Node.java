@@ -11,6 +11,7 @@ public class Node {
     static int PORT_NUMBER;
     static int TTP_PORT;
     static String NAME;
+    static String CHATTING_WITH;
     public static void main(String args[])
     {
         System.out.println("Choosing a random port number to initialize the node .. ");
@@ -27,11 +28,13 @@ public class Node {
         startServer(PORT_NUMBER);
         contactTTP();
 
-
-        System.out.println("----- CHAT STARTS HERE -----");
+        System.out.println("Whom do you want to chat with ? ");
         Scanner messageReader = new Scanner(System.in);
+        CHATTING_WITH = messageReader.nextLine();
+        System.out.println("----- CHAT STARTS HERE -----");
         while (true)
         {
+//            System.out.print("> ");
             String message = in.nextLine();
             if (message.equals("/quit"))
             {
@@ -39,8 +42,8 @@ public class Node {
             }
             else
             {
-                Message m = new Message(message);
-                sendMessage(m,PORT_NUMBER);
+                Message m = new Message(3,message,NAME,CHATTING_WITH);
+                sendMessage(m,TTP_PORT);
             }
 
         }
@@ -52,7 +55,6 @@ public class Node {
         t.setDaemon(true);
         t.start();
     }
-
     static void sendMessage(Message message,int port)
     {
         Thread t = new Thread(new ClientTask(message,port));

@@ -18,15 +18,15 @@ public class Message implements Serializable{
         switch (p)
         {
             case 1: return "INITIALIZATION";
-            case 2: return "IN_TRANSIT";
-            case 3: return "FOR_SERVER";
+            case 2: return "INFO";
+            case 3: return "IN_TRANSIT";
             default:return "UNKNOWN";
         }
     }
     private String sender,receiver,message;
     private int messageType;
 
-    public Message(int t,String s,String r,String m)
+    public Message(int t,String m,String s,String r)
     {
         this.messageType =t;
         this.sender = s;
@@ -48,6 +48,16 @@ public class Message implements Serializable{
     public String getMessage()
     {
         return this.message;
+    }
+
+    public String getSender()
+    {
+        return this.sender;
+    }
+
+    public String getReceiver()
+    {
+        return this.receiver;
     }
 
     public int getMessageType()

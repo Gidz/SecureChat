@@ -2,7 +2,7 @@ package ttp;
 import javax.crypto.BadPaddingException;
 import java.io.*;
 import java.net.Socket;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import application.TTP;
 import com.sun.org.apache.xpath.internal.SourceTree;
@@ -25,7 +25,6 @@ public class ServerThread extends Thread {
 
             Message message= (Message) tunnelIn.readObject();
             //Display the message on the screen
-            System.out.println("> "+message.getMessage());
             handleMessage(message);
 
         }
@@ -43,12 +42,12 @@ public class ServerThread extends Thread {
         }
     }
 
-    void handleMessage(Message m)
+    static void handleMessage(Message m)
     {
         int messageType = m.getMessageType();
         if(messageType == 1)
         {
-            System.out.println("Message will be handled as the type INTITALIZATION");
+            System.out.println("> "+m.getMessage());
             StringTokenizer slasher = new StringTokenizer(m.getMessage());
 
             String user = slasher.nextToken();
@@ -56,24 +55,53 @@ public class ServerThread extends Thread {
 
             //Update the users list on the server
             TTP.users.put(user,port);
-
-            System.out.println("-----------------------------------");
-            System.out.println("Current users list");
-            System.out.println(TTP.users.toString());
-            System.out.println("-----------------------------------");
-
+//            printOnlineUsers();
+            if(TTP.users.size()==1)
+            {
+                sendMessage(new Message("Waiting for the other user to join."),port);
+            }
+            else
+            {
+                sendToAll(new Message("Updated user list\n"+TTP.users.keySet()));
+            }
         }
         else if(messageType == 2)
         {
-            System.out.println("Message will be handle as the type FOR_SERVER");
+            //Just display it on screen
+            System.out.println("> "+m.getMessage());
         }
         else if(messageType == 3)
         {
-            System.out.println("Message will be handle as the type IN_TRANSIT");
+            //This message should be sent to the other node
+            System.out.println("# "+m.getMessage());
+            sendMessage(m,TTP.users.get(m.getReceiver()));
         }
         else
         {
             System.out.println("Unknown. System FAILURE will occur soon!");
         }
+    }
+
+    static void sendMessage(Message message, int port)
+    {
+        Thread t = new Thread(new ClientThread(message,port));
+        t.start();
+    }
+
+    static void sendToAll(Message message)
+    {
+        for (String key : TTP.users.keySet()) {
+            int port = TTP.users.get(key);
+            Thread t = new Thread(new ClientThread(message,port));
+            t.start();
+        }
+    }
+
+    static void printOnlineUsers()
+    {
+        System.out.println("-----------------------------------");
+        System.out.println("Current users list");
+        System.out.println(TTP.users.toString());
+        System.out.println("-----------------------------------");
     }
 }

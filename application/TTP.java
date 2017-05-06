@@ -1,10 +1,9 @@
 package application; /**
  * Created by gideon on 06/05/17.
  */
-import ttp.*;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import ttp.ServerThread;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;

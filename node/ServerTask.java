@@ -37,7 +37,7 @@ public class ServerTask extends Thread implements Runnable {
             Message message = (Message) tunnelIn.readObject();
 
             //Display the message on the standard output
-            System.out.println("Received : "+message.getMessage());
+            System.out.println("> "+message.getMessage());
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
