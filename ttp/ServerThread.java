@@ -1,12 +1,12 @@
 package ttp;
-import javax.crypto.BadPaddingException;
-import java.io.*;
-import java.net.Socket;
-import java.util.*;
 
 import application.TTP;
-import com.sun.org.apache.xpath.internal.SourceTree;
-import essentials.*;
+import essentials.Message;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.StringTokenizer;
 
 /**
  * Created by gideon on 20/04/17.
@@ -72,8 +72,14 @@ public class ServerThread extends Thread {
         }
         else if(messageType == 3)
         {
-            //This message should be sent to the other node
-            System.out.println("# "+m.getMessage());
+            byte[] cipher;
+            cipher = m.getEncryptedMessage();
+            //Printing out the encrypted message
+            for (int i=0; i<cipher.length; i++)
+                System.out.print(new Integer(cipher[i])+" ");
+            System.out.println("");
+
+            //Sending the message to another node
             sendMessage(m,TTP.users.get(m.getReceiver()));
         }
         else

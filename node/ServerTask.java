@@ -7,6 +7,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import essentials.*;
 
+import javax.crypto.BadPaddingException;
+
 /**
  * Created by gideon on 05/05/17.
  */
@@ -37,10 +39,23 @@ public class ServerTask extends Thread implements Runnable {
             Message message = (Message) tunnelIn.readObject();
 
             //Display the message on the standard output
-            System.out.println("> "+message.getMessage());
+            if (message.getMessageType()==3)
+            {
+                AES aes = new AES();
+                System.out.println("> "+aes.decrypt(message.getEncryptedMessage()));
+            }
+            else
+            {
+                System.out.println("> "+message.getMessage());
+            }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (BadPaddingException e)
+            {
+                System.err.println("Incorrect key used. Please update the keys.");
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

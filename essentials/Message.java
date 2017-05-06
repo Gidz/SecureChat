@@ -25,13 +25,14 @@ public class Message implements Serializable{
     }
     private String sender,receiver,message;
     private int messageType;
+    private byte[] encryptedMessage;
 
-    public Message(int t,String m,String s,String r)
+    public Message(int t,byte[] m,String s,String r)
     {
         this.messageType =t;
         this.sender = s;
         this.receiver = r;
-        this.message = m;
+        this.encryptedMessage = m;
     }
 
     public Message(int t,String m)
@@ -48,6 +49,11 @@ public class Message implements Serializable{
     public String getMessage()
     {
         return this.message;
+    }
+
+    public byte[] getEncryptedMessage()
+    {
+        return this.encryptedMessage;
     }
 
     public String getSender()

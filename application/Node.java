@@ -1,8 +1,11 @@
 package application; /**
  * Created by gideon on 05/05/17.
  */
+
+import essentials.AES;
 import essentials.Message;
-import node.*;
+import node.ClientTask;
+import node.ServerTask;
 
 import java.util.Random;
 import java.util.Scanner;
@@ -12,8 +15,8 @@ public class Node {
     static int TTP_PORT;
     static String NAME;
     static String CHATTING_WITH;
-    public static void main(String args[])
-    {
+    static String AES_KEY;
+    public static void main(String args[]) throws Exception {
         System.out.println("Choosing a random port number to initialize the node .. ");
 
         Random random = new Random();
@@ -34,7 +37,6 @@ public class Node {
         System.out.println("----- CHAT STARTS HERE -----");
         while (true)
         {
-//            System.out.print("> ");
             String message = in.nextLine();
             if (message.equals("/quit"))
             {
@@ -42,7 +44,10 @@ public class Node {
             }
             else
             {
-                Message m = new Message(3,message,NAME,CHATTING_WITH);
+                byte[] em;
+                AES aes = new AES();
+                em = aes.encrypt(message);
+                Message m = new Message(3,em,NAME,CHATTING_WITH);
                 sendMessage(m,TTP_PORT);
             }
 
