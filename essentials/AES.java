@@ -5,37 +5,43 @@ package essentials;
  */
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class AES {
     private static String IV;
     private static String plaintext;
     private static String encryptionKey;
     private static byte[] cipher;
+    private SecretKey key;
     public AES()
     {
-        //Use these by default if none specified
-        this.IV = "Az5AAAAAAAAAAAAA";
-        this.encryptionKey="07B820B5A579C74D32D5F5F4B6EA9081";
+
     }
 
-    public AES(String key)
-    {
-        this.encryptionKey = key;
+    public AES(byte[] k) throws NoSuchAlgorithmException {
+        MessageDigest sha = MessageDigest.getInstance("SHA-1");
+        k = sha.digest(k);
+        k = Arrays.copyOf(k, 16); // use only first 128 bit
+        SecretKeySpec secretKeySpec = new SecretKeySpec(k, "AES");
+        key = new SecretKeySpec(k, 0, k.length, "AES");
         this.IV = "Az5AAAAAAAAAAAAA";
     }
 
     public byte[] encrypt(String plainText) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
-        SecretKeySpec key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
+//        SecretKeySpec key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
         cipher.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
         return cipher.doFinal(plainText.getBytes("UTF-8"));
     }
 
     public String decrypt(byte[] cipherText) throws Exception{
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
-        SecretKeySpec key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
+//        SecretKeySpec key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
         cipher.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
         return new String(cipher.doFinal(cipherText),"UTF-8");
     }

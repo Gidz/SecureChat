@@ -8,7 +8,9 @@ import node.ClientTask;
 import node.ServerTask;
 
 import javax.crypto.KeyAgreement;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.DHParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Random;
@@ -40,14 +42,40 @@ public class Node {
         startServer(PORT_NUMBER);
         contactTTP();
 
-
         System.out.println("Enter yes to exhange keys");
         in.nextLine();
+
         //TODO: Exchange the AES key
         if(NODE_NUMBER==0)
         {
             startKeyExchange();
         }
+
+//        new Thread(() -> {
+//            while(true)
+//            {
+//                if (sharedSecretKey==null)
+//                {
+//                    continue;
+//                }
+//                else
+//                {
+//                    try {
+//                        AES aes = new AES(sharedSecretKey);
+//                    } catch (NoSuchAlgorithmException e) {
+//                        e.printStackTrace();
+//                    }
+//                    break;
+//                }
+//            }
+//        }).start();
+
+        if(NODE_NUMBER==0)
+        {
+            System.out.println("Press Enter to start chat");
+            in.nextLine();
+        }
+        AES aes =  new AES(sharedSecretKey);;
 
         System.out.println("----- CHAT STARTS HERE -----");
         while (true)
@@ -60,7 +88,6 @@ public class Node {
             else
             {
                 byte[] em;
-                AES aes = new AES();
                 em = aes.encrypt(message);
                 Message m = new Message("CHAT",em,NODE_NUMBER);
                 sendMessage(m,TTP_PORT);
@@ -114,6 +141,5 @@ public class Node {
 
         //Sending Node1's public key
         sendMessage(new Message("DH1",myDHKeyPair.getPublic().getEncoded(),NODE_NUMBER),TTP_PORT);
-
     }
 }

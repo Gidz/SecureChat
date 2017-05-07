@@ -51,7 +51,7 @@ public class ServerTask extends Thread implements Runnable {
             //Display the message on the standard output
             if (messageType.equals("CHAT"))
             {
-                AES aes = new AES();
+                AES aes = new AES(Node.sharedSecretKey);
                 System.out.println("> "+aes.decrypt(message.getEncryptedMessage()));
             }
             else if(messageType.equals("UPDATE_NODE_NUMBER"))
@@ -85,7 +85,7 @@ public class ServerTask extends Thread implements Runnable {
                 //Meanwhile calulate the shared secret key
                 Node.myKeyAgreement.doPhase(node1PubKey, true);
                 Node.sharedSecretKey = Node.myKeyAgreement.generateSecret();
-                System.out.println("The shared secret key is "+toHexString(Node.sharedSecretKey));
+//                System.out.println("The shared secret key is "+toHexString(Node.sharedSecretKey));
 
 
                 Node.sendMessage(new Message("DH2",publicKey, Node.NODE_NUMBER),Node.TTP_PORT);
@@ -101,7 +101,7 @@ public class ServerTask extends Thread implements Runnable {
 
                 Node.myKeyAgreement.doPhase(node2PublicKey, true);
                 Node.sharedSecretKey = Node.myKeyAgreement.generateSecret();
-                System.out.println("The shared secret key is "+toHexString(Node.sharedSecretKey));
+//                System.out.println("The shared secret key is "+toHexString(Node.sharedSecretKey));
             }
             else
             {
@@ -141,7 +141,7 @@ public class ServerTask extends Thread implements Runnable {
         for (int i = 0; i < len; i++) {
             byte2hex(block[i], buf);
             if (i < len-1) {
-                buf.append(":");
+                buf.append("");
             }
         }
         return buf.toString();
