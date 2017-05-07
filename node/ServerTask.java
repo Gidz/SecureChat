@@ -62,7 +62,7 @@ public class ServerTask extends Thread implements Runnable {
             else if(messageType.equals("DH1"))
             {
                 //Received Node1's public key
-                System.out.println("> "+toHexString(message.getEncryptedMessage()));
+//                System.out.println("> "+toHexString(message.getEncryptedMessage()));
                 KeyFactory node2KeyFac = KeyFactory.getInstance("DH");
                 X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(message.getEncryptedMessage());
                 PublicKey node1PubKey = node2KeyFac.generatePublic(x509KeySpec);
@@ -70,19 +70,17 @@ public class ServerTask extends Thread implements Runnable {
                 DHParameterSpec dhParamSpec = ((DHPublicKey)node1PubKey).getParams();
 
                 // Node2 creates a DH key pair
-                System.out.println("Node 2: Generate DH keypair ...");
                 KeyPairGenerator node2KpairGen = KeyPairGenerator.getInstance("DH");
                 node2KpairGen.initialize(dhParamSpec);
                 Node.myDHKeyPair = node2KpairGen.generateKeyPair();
 
                 // Node2 creates and initializes DH KeyAgreement object
-                System.out.println("Node 2: Initialization ...");
                 Node.myKeyAgreement = KeyAgreement.getInstance("DH");
                 Node.myKeyAgreement.init(Node.myDHKeyPair.getPrivate());
 
                 // Node2 encodes its public key, and sends it over to Node1.
                 byte[] publicKey = Node.myDHKeyPair.getPublic().getEncoded();
-                System.out.println("Sending this over the network "+Node.myDHKeyPair.getPublic());
+//                System.out.println("Sending this over the network "+Node.myDHKeyPair.getPublic());
 
                 //Meanwhile calulate the shared secret key
                 Node.myKeyAgreement.doPhase(node1PubKey, true);
@@ -95,13 +93,12 @@ public class ServerTask extends Thread implements Runnable {
             else if(messageType.equals("DH2"))
             {
                 //Node 1 receives public key from Node2
-                System.out.println("> "+toHexString(message.getEncryptedMessage()));
+//                System.out.println("> "+toHexString(message.getEncryptedMessage()));
 
                 KeyFactory node1KeyFac = KeyFactory.getInstance("DH");
                 X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(message.getEncryptedMessage());
                 PublicKey node2PublicKey = node1KeyFac.generatePublic(x509KeySpec);
 
-                System.out.println("ALICE: Execute PHASE1 ...");
                 Node.myKeyAgreement.doPhase(node2PublicKey, true);
                 Node.sharedSecretKey = Node.myKeyAgreement.generateSecret();
                 System.out.println("The shared secret key is "+toHexString(Node.sharedSecretKey));

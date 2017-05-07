@@ -91,7 +91,7 @@ public class Node {
         DHParameterSpec dhSkipParamSpec;
 
         // Create new DH parameters
-        System.out.println("Creating Diffie-Hellman parameters...");
+        System.out.println("Initiating DH Key Exchange . . .");
 
         AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator.getInstance("DH");
         paramGen.init(512);
@@ -99,20 +99,18 @@ public class Node {
         dhSkipParamSpec = (DHParameterSpec)params.getParameterSpec(DHParameterSpec.class);
 
         //Create a DH key pair, using the DH parameters above
-        System.out.println("Generate a DH keypair ...");
         KeyPairGenerator keysGenerator = KeyPairGenerator.getInstance("DH");
         keysGenerator.initialize(dhSkipParamSpec);
         myDHKeyPair = keysGenerator.generateKeyPair();
 
         // Create and initializes her DH KeyAgreement object
-        System.out.println("Initialization ...");
         myKeyAgreement = KeyAgreement.getInstance("DH");
         myKeyAgreement.init(myDHKeyPair.getPrivate());
 
         // Encodes the public key, and sends it over the network.
         byte[] publicKey = myDHKeyPair.getPublic().getEncoded();
 
-        System.out.println("Sending this over the network "+myDHKeyPair.getPublic());
+//        System.out.println("Sending this over the network "+myDHKeyPair.getPublic());
 
         //Sending Node1's public key
         sendMessage(new Message("DH1",myDHKeyPair.getPublic().getEncoded(),NODE_NUMBER),TTP_PORT);
