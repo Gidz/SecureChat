@@ -45,30 +45,11 @@ public class Node {
         System.out.println("Enter yes to exhange keys");
         in.nextLine();
 
-        //TODO: Exchange the AES key
+
         if(NODE_NUMBER==0)
         {
             startKeyExchange();
         }
-
-//        new Thread(() -> {
-//            while(true)
-//            {
-//                if (sharedSecretKey==null)
-//                {
-//                    continue;
-//                }
-//                else
-//                {
-//                    try {
-//                        AES aes = new AES(sharedSecretKey);
-//                    } catch (NoSuchAlgorithmException e) {
-//                        e.printStackTrace();
-//                    }
-//                    break;
-//                }
-//            }
-//        }).start();
 
         if(NODE_NUMBER==0)
         {

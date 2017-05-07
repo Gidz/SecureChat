@@ -29,7 +29,9 @@ public class AES {
         k = Arrays.copyOf(k, 16); // use only first 128 bit
         SecretKeySpec secretKeySpec = new SecretKeySpec(k, "AES");
         key = new SecretKeySpec(k, 0, k.length, "AES");
-        this.IV = "Az5AAAAAAAAAAAAA";
+
+        //TODO: Change the IV based on the byte[] array
+        this.IV = "AAAAAAAAAAAAAAAA";
     }
 
     public byte[] encrypt(String plainText) throws Exception {
