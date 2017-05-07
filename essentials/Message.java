@@ -13,29 +13,29 @@ import java.io.Serializable;
  * Created by Gideon on 20/04/17.
  */
 public class Message implements Serializable{
-    public String resolveMessageCode(int p)
-    {
-        switch (p)
-        {
-            case 1: return "INITIALIZATION";
-            case 2: return "INFO";
-            case 3: return "IN_TRANSIT";
-            default:return "UNKNOWN";
-        }
-    }
-    private String sender,receiver,message;
-    private int messageType;
+//    public String resolveMessageCode(int p)
+//    {
+//        switch (p)
+//        {
+//            case 1: return "INITIALIZATION";
+//            case 2: return "INFO";
+//            case 3: return "IN_TRANSIT";
+//            default:return "UNKNOWN";
+//        }
+//    }
+    private String receiver,message;
+    private int sender;
+    private String messageType;
     private byte[] encryptedMessage;
 
-    public Message(int t,byte[] m,String s,String r)
+    public Message(String t,byte[] m,int s)
     {
         this.messageType =t;
         this.sender = s;
-        this.receiver = r;
         this.encryptedMessage = m;
     }
 
-    public Message(int t,String m)
+    public Message(String t,String m)
     {
         this.messageType =t;
         this.message = m;
@@ -56,7 +56,7 @@ public class Message implements Serializable{
         return this.encryptedMessage;
     }
 
-    public String getSender()
+    public int getSender()
     {
         return this.sender;
     }
@@ -66,7 +66,7 @@ public class Message implements Serializable{
         return this.receiver;
     }
 
-    public int getMessageType()
+    public String getMessageType()
     {
         return messageType;
     }

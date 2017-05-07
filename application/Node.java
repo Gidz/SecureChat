@@ -7,15 +7,26 @@ import essentials.Message;
 import node.ClientTask;
 import node.ServerTask;
 
+import javax.crypto.KeyAgreement;
+import javax.crypto.spec.DHParameterSpec;
+import java.security.*;
+import java.security.spec.InvalidParameterSpecException;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Node {
     static int PORT_NUMBER;
-    static int TTP_PORT;
+    public static int TTP_PORT;
+    public static int NODE_NUMBER;
     static String NAME;
     static String CHATTING_WITH;
     static String AES_KEY;
+    public static boolean canChat=false;
+
+    static public KeyPair myDHKeyPair;
+    static public KeyAgreement myKeyAgreement;
+    static public byte[] sharedSecretKey;
+
     public static void main(String args[]) throws Exception {
         System.out.println("Choosing a random port number to initialize the node .. ");
 
@@ -25,15 +36,19 @@ public class Node {
         Scanner in = new Scanner(System.in);
         System.out.print("Enter the port number of the Third Party Server : ");
         TTP_PORT = Integer.parseInt(in.nextLine());
-        System.out.println("Enter your identifier");
-        NAME = in.nextLine();
-        //Start the server thread
+
         startServer(PORT_NUMBER);
         contactTTP();
 
-        System.out.println("Whom do you want to chat with ? ");
-        Scanner messageReader = new Scanner(System.in);
-        CHATTING_WITH = messageReader.nextLine();
+
+        System.out.println("Enter yes to exhange keys");
+        in.nextLine();
+        //TODO: Exchange the AES key
+        if(NODE_NUMBER==0)
+        {
+            startKeyExchange();
+        }
+
         System.out.println("----- CHAT STARTS HERE -----");
         while (true)
         {
@@ -47,7 +62,7 @@ public class Node {
                 byte[] em;
                 AES aes = new AES();
                 em = aes.encrypt(message);
-                Message m = new Message(3,em,NAME,CHATTING_WITH);
+                Message m = new Message("CHAT",em,NODE_NUMBER);
                 sendMessage(m,TTP_PORT);
             }
 
@@ -60,7 +75,7 @@ public class Node {
         t.setDaemon(true);
         t.start();
     }
-    static void sendMessage(Message message,int port)
+    public static void sendMessage(Message message,int port)
     {
         Thread t = new Thread(new ClientTask(message,port));
         t.start();
@@ -68,6 +83,39 @@ public class Node {
 
     static void contactTTP()
     {
-        sendMessage(new Message(1,NAME+" "+PORT_NUMBER+""),TTP_PORT);
+        sendMessage(new Message("INITIALIZATION",""+PORT_NUMBER),TTP_PORT);
+    }
+
+
+    static void startKeyExchange() throws NoSuchAlgorithmException, InvalidParameterSpecException, InvalidAlgorithmParameterException, InvalidKeyException {
+        DHParameterSpec dhSkipParamSpec;
+
+        // Create new DH parameters
+        System.out.println("Creating Diffie-Hellman parameters...");
+
+        AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator.getInstance("DH");
+        paramGen.init(512);
+        AlgorithmParameters params = paramGen.generateParameters();
+        dhSkipParamSpec = (DHParameterSpec)params.getParameterSpec(DHParameterSpec.class);
+
+        //Create a DH key pair, using the DH parameters above
+        System.out.println("Generate a DH keypair ...");
+        KeyPairGenerator keysGenerator = KeyPairGenerator.getInstance("DH");
+        keysGenerator.initialize(dhSkipParamSpec);
+        myDHKeyPair = keysGenerator.generateKeyPair();
+
+        // Create and initializes her DH KeyAgreement object
+        System.out.println("Initialization ...");
+        myKeyAgreement = KeyAgreement.getInstance("DH");
+        myKeyAgreement.init(myDHKeyPair.getPrivate());
+
+        // Encodes the public key, and sends it over the network.
+        byte[] publicKey = myDHKeyPair.getPublic().getEncoded();
+
+        System.out.println("Sending this over the network "+myDHKeyPair.getPublic());
+
+        //Sending Node1's public key
+        sendMessage(new Message("DH1",myDHKeyPair.getPublic().getEncoded(),NODE_NUMBER),TTP_PORT);
+
     }
 }

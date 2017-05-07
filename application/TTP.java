@@ -7,13 +7,13 @@ import ttp.ServerThread;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class TTP {
     static int PORT_NUMBER;
-
-    public static HashMap<String,Integer> users = new HashMap<String, Integer>();
+    public static ArrayList<Integer> users = new ArrayList<>();
 
     public static void main(String args[]) throws IOException {
         System.out.print("Choose a port number to start the Server: ");

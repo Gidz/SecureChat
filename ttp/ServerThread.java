@@ -1,11 +1,19 @@
 package ttp;
 
+import application.Node;
 import application.TTP;
 import essentials.Message;
+
+import javax.crypto.KeyAgreement;
+import javax.crypto.interfaces.DHPublicKey;
+import javax.crypto.spec.DHParameterSpec;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.StringTokenizer;
 
 /**
@@ -42,35 +50,33 @@ public class ServerThread extends Thread {
         }
     }
 
-    static void handleMessage(Message m)
-    {
-        int messageType = m.getMessageType();
-        if(messageType == 1)
+    static void handleMessage(Message m) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException, InvalidKeyException {
+        String messageType = m.getMessageType();
+        if(messageType.equals("INITIALIZATION"))
         {
             System.out.println("> "+m.getMessage());
-            StringTokenizer slasher = new StringTokenizer(m.getMessage());
-
-            String user = slasher.nextToken();
-            int port = Integer.parseInt(slasher.nextToken());
+            int port = Integer.parseInt(m.getMessage());
 
             //Update the users list on the server
-            TTP.users.put(user,port);
+            TTP.users.add(port);
 //            printOnlineUsers();
             if(TTP.users.size()==1)
             {
-                sendMessage(new Message("Waiting for the other user to join."),port);
+                sendMessage(new Message("UPDATE_NODE_NUMBER","0"),port);
+                sendMessage(new Message("INFO","Waiting for the other user to join."),port);
             }
             else
             {
-                sendToAll(new Message("Updated user list\n"+TTP.users.keySet()));
+                sendMessage(new Message("UPDATE_NODE_NUMBER","1"),port);
+                sendToAll(new Message("INFO","All the users joined. You can begin chat now"));
             }
         }
-        else if(messageType == 2)
+        else if(messageType.equals("INFO"))
         {
             //Just display it on screen
             System.out.println("> "+m.getMessage());
         }
-        else if(messageType == 3)
+        else if(messageType.equals("CHAT"))
         {
             byte[] cipher;
             cipher = m.getEncryptedMessage();
@@ -80,7 +86,13 @@ public class ServerThread extends Thread {
             System.out.println("");
 
             //Sending the message to another node
-            sendMessage(m,TTP.users.get(m.getReceiver()));
+            invokeToggleSender(m);
+        }
+        //The key exchange protocol
+        else if(messageType.equals("DH1") || messageType.equals("DH2"))
+        {
+            //Sending the message to another node
+            invokeToggleSender(m);
         }
         else
         {
@@ -96,8 +108,8 @@ public class ServerThread extends Thread {
 
     static void sendToAll(Message message)
     {
-        for (String key : TTP.users.keySet()) {
-            int port = TTP.users.get(key);
+        for (int i=0;i<TTP.users.size();i++) {
+            int port = TTP.users.get(i);
             Thread t = new Thread(new ClientThread(message,port));
             t.start();
         }
@@ -109,5 +121,17 @@ public class ServerThread extends Thread {
         System.out.println("Current users list");
         System.out.println(TTP.users.toString());
         System.out.println("-----------------------------------");
+    }
+
+    static void invokeToggleSender(Message m)
+    {
+        if(m.getSender() == 0)
+        {
+            sendMessage(m,TTP.users.get(1));
+        }
+        else if(m.getSender() == 1)
+        {
+            sendMessage(m,TTP.users.get(0));
+        }
     }
 }
