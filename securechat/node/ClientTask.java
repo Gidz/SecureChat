@@ -1,11 +1,10 @@
-package node;
+package securechat.node;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import essentials.*;
+import securechat.essentials.*;
 
 /**
  * Created by gideon on 05/05/17.

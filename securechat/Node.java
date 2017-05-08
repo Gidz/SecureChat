@@ -1,16 +1,14 @@
-package application; /**
+package securechat; /**
  * Created by gideon on 05/05/17.
  */
 
-import essentials.AES;
-import essentials.Message;
-import node.ClientTask;
-import node.ServerTask;
+import securechat.essentials.AES;
+import securechat.essentials.Message;
+import securechat.node.ClientTask;
+import securechat.node.ServerTask;
 
 import javax.crypto.KeyAgreement;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.DHParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Random;
@@ -23,14 +21,14 @@ public class Node {
     static String NAME;
     static String CHATTING_WITH;
     static String AES_KEY;
-    public static boolean canChat=false;
+    public static boolean stopChat=true;
 
     static public KeyPair myDHKeyPair;
     static public KeyAgreement myKeyAgreement;
     static public byte[] sharedSecretKey;
 
     public static void main(String args[]) throws Exception {
-        System.out.println("Choosing a random port number to initialize the node .. ");
+        System.out.println("Choosing a random port number to initialize the securechat.node .. ");
 
         Random random = new Random();
         PORT_NUMBER = random.nextInt(65535 - 49152+ 1) + 49152;
@@ -42,21 +40,20 @@ public class Node {
         startServer(PORT_NUMBER);
         contactTTP();
 
-        System.out.println("Enter yes to exhange keys");
-        in.nextLine();
-
-
-        if(NODE_NUMBER==0)
-        {
-            startKeyExchange();
-        }
-
         if(NODE_NUMBER==0)
         {
             System.out.println("Press Enter to start chat");
             in.nextLine();
         }
-        AES aes =  new AES(sharedSecretKey);;
+        else
+        {
+            while(stopChat)
+            {
+                in.nextLine();
+                System.out.println("Please wait till the shared key is calculated");
+            }
+        }
+        AES aes =  new AES(sharedSecretKey);
 
         System.out.println("----- CHAT STARTS HERE -----");
         while (true)
@@ -95,7 +92,7 @@ public class Node {
     }
 
 
-    static void startKeyExchange() throws NoSuchAlgorithmException, InvalidParameterSpecException, InvalidAlgorithmParameterException, InvalidKeyException {
+    public static void startKeyExchange() throws NoSuchAlgorithmException, InvalidParameterSpecException, InvalidAlgorithmParameterException, InvalidKeyException {
         DHParameterSpec dhSkipParamSpec;
 
         // Create new DH parameters

@@ -1,20 +1,13 @@
-package ttp;
+package securechat.ttp;
 
-import application.Node;
-import application.TTP;
-import essentials.Message;
+import securechat.essentials.Message;
 
-import javax.crypto.KeyAgreement;
-import javax.crypto.interfaces.DHPublicKey;
-import javax.crypto.spec.DHParameterSpec;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.StringTokenizer;
 
 /**
  * Created by gideon on 20/04/17.
@@ -69,6 +62,7 @@ public class ServerThread extends Thread {
             {
                 sendMessage(new Message("UPDATE_NODE_NUMBER","1"),port);
                 sendToAll(new Message("INFO","All the users joined. You can begin chat now"));
+                sendMessage(new Message("EXCHANGE_KEYS",""),TTP.users.get(0));
             }
         }
         else if(messageType.equals("INFO"))
@@ -85,13 +79,17 @@ public class ServerThread extends Thread {
                 System.out.print(new Integer(cipher[i])+" ");
             System.out.println("");
 
-            //Sending the message to another node
+            //Sending the message to another securechat.node
             invokeToggleSender(m);
         }
         //The key exchange protocol
         else if(messageType.equals("DH1") || messageType.equals("DH2"))
         {
-            //Sending the message to another node
+            //Sending the message to another securechat.node
+            invokeToggleSender(m);
+        }
+        else if(messageType.equals("START_CHAT"))
+        {
             invokeToggleSender(m);
         }
         else

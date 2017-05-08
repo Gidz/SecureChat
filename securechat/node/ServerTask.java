@@ -1,6 +1,5 @@
-package node;
+package securechat.node;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
@@ -10,8 +9,8 @@ import java.security.KeyPairGenerator;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 
-import application.Node;
-import essentials.*;
+import securechat.Node;
+import securechat.essentials.*;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.KeyAgreement;
@@ -38,7 +37,7 @@ public class ServerTask extends Thread implements Runnable {
         Socket listener = null;
         System.out.println("Server Started and listening to the port "+this.port);
 
-        //node.Server is running always. This is done using this while(true) loop
+        //securechat.node.Server is running always. This is done using this while(true) loop
         while(true) {
             //Reading the message from the client
             try {
@@ -57,7 +56,7 @@ public class ServerTask extends Thread implements Runnable {
             else if(messageType.equals("UPDATE_NODE_NUMBER"))
             {
                 Node.NODE_NUMBER = Integer.parseInt(message.getMessage());
-                System.out.println("The node number is "+Node.NODE_NUMBER);
+                System.out.println("The securechat.node number is "+Node.NODE_NUMBER);
             }
             else if(messageType.equals("DH1"))
             {
@@ -102,6 +101,16 @@ public class ServerTask extends Thread implements Runnable {
                 Node.myKeyAgreement.doPhase(node2PublicKey, true);
                 Node.sharedSecretKey = Node.myKeyAgreement.generateSecret();
 //                System.out.println("The shared secret key is "+toHexString(Node.sharedSecretKey));
+                Node.sendMessage(new Message("START_CHAT",""),Node.TTP_PORT);
+            }
+            else if(messageType.equals("START_CHAT"))
+            {
+                Node.stopChat = false;
+                System.out.println("Key calculation successful. Press Enter to proceed to chat.");
+            }
+            else if(messageType.equals("EXCHANGE_KEYS"))
+            {
+                Node.startKeyExchange();
             }
             else
             {

@@ -1,7 +1,7 @@
-package essentials; /**
+package securechat.essentials; /**
  * Created by gideon on 06/05/17.
- * The essentials.Message class is used to trasmit an actual message over the network.
- * essentials.Message type can be one of the following
+ * The securechat.essentials.Message class is used to trasmit an actual message over the network.
+ * securechat.essentials.Message type can be one of the following
  * 1. Initialization
  * 2. In Transit
  * 3. For Server

@@ -1,4 +1,4 @@
-package essentials;
+package securechat.essentials;
 
 /**
  * Created by gideon on 06/05/17.
