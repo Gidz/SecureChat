@@ -7,7 +7,7 @@
 
 <!--TODO Implement the close window properly-->
 
-<Pane fx:controller="securechat.Server" id="serverPortNumber" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
+<Pane id="serverPortNumber" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="securechat.Server">
    <children>
       <Button fx:id="startButton" layoutX="463.0" layoutY="343.0" mnemonicParsing="false" onMouseClicked="#handleStartButton" text="Start Server" />
       <TextArea fx:id="serverOutput" editable="false" layoutX="41.0" layoutY="37.0" prefHeight="286.0" prefWidth="519.0" />
