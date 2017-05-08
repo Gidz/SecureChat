@@ -157,13 +157,6 @@ public class Server extends Application {
             }
         }
 
-        void printOnlineUsers() {
-            System.out.println("-----------------------------------");
-            System.out.println("Current users list");
-            System.out.println(users.toString());
-            System.out.println("-----------------------------------");
-        }
-
         void invokeToggleSender(Message m) {
             if (m.getSender() == 0) {
                 sendMessage(m, users.get(1));
