@@ -1,49 +1,58 @@
-package securechat.ttp;
+package securechat;
+/**
+ * Created by gideon on 06/05/17.
+ */
 
 import securechat.essentials.Message;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
-/**
- * Created by gideon on 20/04/17.
- */
-public class ServerThread extends Thread {
-    Socket socket;
-    public ServerThread(Socket socket)
-    {
-        this.socket = socket;
-    }
-    public void run()
-    {
+public class TTP {
+    static int PORT_NUMBER;
+    public static ArrayList<Integer> users = new ArrayList<>();
+
+    public TTP(int p){
+        PORT_NUMBER = p;
+        ServerSocket serverSocket = null;
         try {
-            ObjectInputStream tunnelIn = new ObjectInputStream (socket.getInputStream());
-            ObjectOutputStream tunnelOut = new ObjectOutputStream(socket.getOutputStream());
-
-            Message message= (Message) tunnelIn.readObject();
-            //Display the message on the screen
-            handleMessage(message);
-
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
+            serverSocket = new ServerSocket(PORT_NUMBER);
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        finally {
+        System.out.println("The Server is up and running!");
+
+        while(true)
+        {
+            Socket socket = null;
             try {
-                socket.close();
+                socket = serverSocket.accept();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            Thread thread = new ServerThread(socket);
+            thread.start();
         }
     }
 
-    static void handleMessage(Message m) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException, InvalidKeyException {
+    public static void main(String args[])
+    {
+        System.out.print("Enter the port you want to start the server on : ");
+        Scanner in = new Scanner(System.in);
+        TTP ttpServer = new TTP(Integer.parseInt(in.nextLine()));
+    }
+
+    void handleMessage(Message m) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException, InvalidKeyException {
         String messageType = m.getMessageType();
         if(messageType.equals("INITIALIZATION"))
         {
@@ -98,13 +107,13 @@ public class ServerThread extends Thread {
         }
     }
 
-    static void sendMessage(Message message, int port)
+    void sendMessage(Message message, int port)
     {
         Thread t = new Thread(new ClientThread(message,port));
         t.start();
     }
 
-    static void sendToAll(Message message)
+    void sendToAll(Message message)
     {
         for (int i=0;i<TTP.users.size();i++) {
             int port = TTP.users.get(i);
@@ -121,7 +130,7 @@ public class ServerThread extends Thread {
         System.out.println("-----------------------------------");
     }
 
-    static void invokeToggleSender(Message m)
+    void invokeToggleSender(Message m)
     {
         if(m.getSender() == 0)
         {
@@ -132,4 +141,61 @@ public class ServerThread extends Thread {
             sendMessage(m,TTP.users.get(0));
         }
     }
+
+     class ClientThread extends Thread implements Runnable {
+        Message message;
+        int port;
+        public ClientThread(Message m,int p)
+        {
+            this.message = m;
+            this.port = p;
+        }
+        @Override
+        public void run() {
+            Socket socket;
+            try {
+                socket = new Socket(InetAddress.getLocalHost(),port);
+                ObjectOutputStream tunnelOut = new ObjectOutputStream(socket.getOutputStream());
+                tunnelOut.writeObject(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    class ServerThread extends Thread {
+        Socket socket;
+        public ServerThread(Socket socket)
+        {
+            this.socket = socket;
+        }
+        public void run()
+        {
+            try {
+                ObjectInputStream tunnelIn = new ObjectInputStream (socket.getInputStream());
+                ObjectOutputStream tunnelOut = new ObjectOutputStream(socket.getOutputStream());
+
+                Message message= (Message) tunnelIn.readObject();
+                //Display the message on the screen
+                handleMessage(message);
+
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+    }
+
 }
+
