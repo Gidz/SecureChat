@@ -45,17 +45,34 @@ public class Server extends Application {
     @FXML
     public void handleStartButton() {
         new Thread(() -> {
-            TTP ttpServer = new TTP(Integer.parseInt(serverPortNumber.getText()));
+            try
+            {
+                TTP ttpServer = new TTP(Integer.parseInt(serverPortNumber.getText()));
+            }
+            catch(NullPointerException e)
+            {
+                updateDisplay(">>>>>>>> An Exception Occured <<<<<<<<");
+            }
         }).start();
         startButton.setDisable(true);
     }
 
     @FXML
     public void updateDisplay(String text) {
-        new Thread(() -> {
-            serverOutput.appendText(text);
-        }).start();
-
+        String toDisplay;
+        try {
+            if(text == null)
+            {
+                toDisplay="";
+            }
+            else
+            {
+                toDisplay = text;
+            }
+            serverOutput.appendText(toDisplay);
+        } catch (NullPointerException e) {
+            updateDisplay("Some text cannot be displayed.");
+        }
     }
 
 
