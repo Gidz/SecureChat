@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+
+
+<Pane fx:controller="securechat.Server" id="serverPortNumber" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button fx:id="startButton" layoutX="463.0" layoutY="343.0" mnemonicParsing="false" onMouseClicked="#handleStartButton" text="Start Server" />
+      <TextArea fx:id="serverOutput" editable="false" layoutX="41.0" layoutY="37.0" prefHeight="286.0" prefWidth="519.0" />
+      <TextField fx:id="serverPortNumber" layoutX="221.0" layoutY="343.0" prefHeight="26.0" prefWidth="219.0" promptText="Enter port to start server" />
+   </children>
+</Pane>

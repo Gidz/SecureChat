@@ -1,4 +1,4 @@
-package securechat.essentials;
+package securechat.libs;
 import java.util.Scanner;
 
 /**

@@ -2,8 +2,8 @@ package securechat; /**
  * Created by gideon on 05/05/17.
  */
 
-import securechat.essentials.AES;
-import securechat.essentials.Message;
+import securechat.libs.AES;
+import securechat.libs.Message;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.KeyAgreement;

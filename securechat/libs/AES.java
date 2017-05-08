@@ -1,4 +1,4 @@
-package securechat.essentials;
+package securechat.libs;
 
 /**
  * Created by gideon on 06/05/17.
