@@ -154,10 +154,10 @@ public class Server extends Application {
                 byte[] cipher;
                 cipher = m.getMessage();
                 //Printing out the encrypted message
-                for (int i = 0; i < cipher.length; i++)
-                    updateDisplay(new Integer(cipher[i]) + " ");
-                updateDisplay("\n");
-
+//                for (int i = 0; i < cipher.length; i++)
+//                    updateDisplay(new Integer(cipher[i]) + " ");
+//                updateDisplay("\n");
+                updateDisplay("Transferring the message to the destination . . .\n");
                 //Sending the message to another securechat.node
                 invokeToggleSender(m);
             }

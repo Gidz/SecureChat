@@ -154,7 +154,7 @@ public class UserNode extends Application {
         //Update the address of the TTP Server
         TTP_PORT = Integer.parseInt(portNumber);
 
-        updateDisplay("You can start the chat . . .\n");
+        updateDisplay("Waiting for the other node to connect . . .\n");
 
         //Run this on a separate thread so that UI thread won't be blocked
         new Thread(() -> {
@@ -350,7 +350,9 @@ public class UserNode extends Application {
                             sharedSecretKey = myKeyAgreement.generateSecret();
                             sendMessage(new Message("START_CHAT", ""), TTP_PORT);
                             stopChat = false;
+                            updateDisplay("The other user is ready for chat. You can proceed to type the messages.\n");
                         } else if (messageType.equals("START_CHAT")) {
+                            updateDisplay("The other user is ready for chat. You can proceed to type the messages.\n");
                             stopChat = false;
                         } else if (messageType.equals("EXCHANGE_RSA_PUBLIC_KEY")) {
                             sendMessage(new Message("RSA_PUBLIC_KEY", RSAPublicKey.getEncoded(), NODE_NUMBER), TTP_PORT);
@@ -364,7 +366,7 @@ public class UserNode extends Application {
                             startKeyExchange();
                         } else {
                             //Just drop the message to the console
-                            updateDisplay("> " + message.getMessage()+"\n");
+//                            updateDisplay("> " + message.getMessage()+"\n");
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
