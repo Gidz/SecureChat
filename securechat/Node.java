@@ -4,6 +4,7 @@ package securechat;
  */
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -66,6 +67,12 @@ public class Node extends Application {
         primaryStage.setTitle("User Chat Client");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+
+        primaryStage.setOnCloseRequest(event -> {
+            System.out.println("Stage is closing");
+            Platform.exit();
+            // Save file
+        });
     }
 
     @FXML
