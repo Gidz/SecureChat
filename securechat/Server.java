@@ -37,7 +37,7 @@ public class Server extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("ServerUI.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("userinterface/ServerUI.fxml"));
         primaryStage.setTitle("TTP Server");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();

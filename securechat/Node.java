@@ -63,7 +63,7 @@ public class Node extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("NodeUI.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("userinterface/NodeUI.fxml"));
         primaryStage.setTitle("User Chat Client");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();

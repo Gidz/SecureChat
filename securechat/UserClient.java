@@ -29,7 +29,7 @@ public class UserClient extends Application {
     Button connectButton;
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("userWelcomeScreen.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("userinterface/userWelcomeScreen.fxml"));
         primaryStage.setTitle("Connect to TTP");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
@@ -46,7 +46,7 @@ public class UserClient extends Application {
         System.out.println("The host name is "+hostNameBox.getText());
         System.out.println("The port number is "+portNumberBox.getText());
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("NodeUI.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("userinterface/NodeUI.fxml"));
 //        Parent p = FXMLLoader.load(getClass().getResource("NodeUI.fxml"));
 //        Scene sc = new Scene(p);
         Stage stage = new Stage();
