@@ -71,7 +71,7 @@ public class Node extends Application {
         primaryStage.setOnCloseRequest(event -> {
             System.out.println("Stage is closing");
             Platform.exit();
-            // Save file
+            System.exit(0);
         });
     }
 
