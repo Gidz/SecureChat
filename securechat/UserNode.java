@@ -31,6 +31,7 @@ import javax.crypto.spec.DHParameterSpec;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -46,8 +47,10 @@ public class UserNode extends Application {
     private static int PORT_NUMBER;
 
     //The server address
-    private static int TTP_PORT;
-    private static int NODE_NUMBER;
+    public static int TTP_PORT;
+    private static String HOSTNAME;
+
+    public static int NODE_NUMBER;
     private static boolean stopChat = true;
     private static AES aes;
 
@@ -75,24 +78,16 @@ public class UserNode extends Application {
     public Button startChat;
 
     public static User user;
+
+    public Stage stage;
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-
-        //Load the UI from the userinterface package
-        Parent root = FXMLLoader.load(getClass().getResource("userinterface/NodeUI.fxml"));
-        primaryStage.setTitle("User Chat Client");
-        primaryStage.setScene(new Scene(root));
-        primaryStage.show();
-
-        //Define functionality when close button is pressed
-        primaryStage.setOnCloseRequest(event -> {
-            Platform.exit();
-            System.exit(0);
-        });
+        //This does nothing
     }
 
     //A function to update the user display
@@ -150,17 +145,25 @@ public class UserNode extends Application {
 
     //Get the data from the previous screen
     @FXML
-    public void initData(String hostname, String portNumber) {
+    public void initData(String hostname, String portNumber,Stage stage) {
         //Update the address of the TTP Server
         TTP_PORT = Integer.parseInt(portNumber);
+        HOSTNAME = hostname;
+        this.stage =stage;
 
-        updateDisplay("Waiting for the other node to connect . . .\n");
+        //Define what happens when user presses close button
+        stage.setOnCloseRequest(e -> {
+            Message m = new Message("QUIT",new byte[1], UserNode.NODE_NUMBER);
+            new User().sendMessage(m,UserNode.TTP_PORT);
+            Platform.exit();
+            System.exit(0);
+        });
 
         //Run this on a separate thread so that UI thread won't be blocked
         new Thread(() -> {
             try {
                 //Create an instance of the User
-                user = new User("localhost", "8888");
+                user = new User(hostname, "8888");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -259,9 +262,23 @@ public class UserNode extends Application {
             public void run() {
                 Socket socket;
                 try {
-                    socket = new Socket(InetAddress.getLocalHost(), port);
+                    String remoteMachine;
+                    if(hostname=="localhost")
+                    {
+                        hostname="127.0.0.1";
+                    }
+                    socket = new Socket(hostname, port);
                     ObjectOutputStream tunnelOut = new ObjectOutputStream(socket.getOutputStream());
                     tunnelOut.writeObject(message);
+                } catch(ConnectException e)
+                {
+                    sendMessageButton.setDisable(true);
+                    userInputBox.setDisable(true);
+                    updateDisplay("Sorry cannot connect to the server\n" +
+                            "Possible problems maybe :\n" +
+                            ">The Server is down\n" +
+                            ">The given Server address or port (or both) are wrong\n" +
+                            "Please quit the application and try again. Thank you.\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -286,6 +303,9 @@ public class UserNode extends Application {
                 ServerSocket serverSocket = null;
                 try {
                     serverSocket = new ServerSocket(port);
+                } catch(ConnectException e)
+                {
+                   updateDisplay("The application encountered an unexpected error. Please close it and open it again. Thank you.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -364,7 +384,13 @@ public class UserNode extends Application {
                             }
                         } else if (messageType.equals("EXCHANGE_KEYS")) {
                             startKeyExchange();
-                        } else {
+                        } else if(messageType.equals("QUIT")){
+                            updateDisplay("The other user have ended the session. Please close and reconnect if you want to chat again.");
+                            sendMessageButton.setDisable(true);
+                            userInputBox.setDisable(true);
+                        } else if(messageType.equals("INFO")){
+                            updateDisplay(message.getStringMessage()+"\n");
+                        }else {
                             //Just drop the message to the console
 //                            updateDisplay("> " + message.getMessage()+"\n");
                         }

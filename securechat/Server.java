@@ -52,7 +52,7 @@ public class Server extends Application {
         primaryStage.show();
 
         primaryStage.setOnCloseRequest(event -> {
-            System.out.println("Stage is closing");
+            System.out.println("Server is closing");
             Platform.exit();
             System.exit(0);
         });
@@ -135,16 +135,15 @@ public class Server extends Application {
         void handleMessage(Message m) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException, InvalidKeyException {
             String messageType = m.getMessageType();
             if (messageType.equals("INITIALIZATION")) {
-                updateDisplay("> " + m.getMessage() + "\n");
                 int port = Integer.parseInt(m.getStringMessage());
                 //Update the users list on the server
                 users.add(port);
                 if (users.size() == 1) {
                     sendMessage(new Message("UPDATE_NODE_NUMBER", "0"), port);
-                    sendMessage(new Message("INFO", "Waiting for the other user to join."), port);
+                    sendMessage(new Message("INFO", "TTP Server : Waiting for the other user to join."), port);
                 } else {
                     sendMessage(new Message("UPDATE_NODE_NUMBER", "1"), port);
-                    sendToAll(new Message("INFO", "All the users joined. You can begin chat now"));
+                    sendToAll(new Message("INFO", "TTP Server : All the users joined. You can begin chat now"));
                     sendToAll(new Message("EXCHANGE_RSA_PUBLIC_KEY", ""));
                 }
             } else if (messageType.equals("INFO")) {
@@ -172,7 +171,15 @@ public class Server extends Application {
                 invokeToggleSender(m);
             } else if (messageType.equals("START_CHAT")) {
                 invokeToggleSender(m);
-            } else {
+            }else if(messageType.equals("QUIT")) {
+                updateDisplay("Node "+m.getSender()+" quit\n");
+                //Remove both the users so that server can continue if new users send requests
+                if(!users.isEmpty())
+                {
+                    invokeToggleSender(m);
+                    users.clear();
+                }
+            }else {
                 updateDisplay("Unknown. System FAILURE will occur soon!\n");
             }
         }

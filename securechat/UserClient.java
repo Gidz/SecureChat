@@ -20,6 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import securechat.libs.Message;
 
 import java.io.IOException;
 
@@ -43,7 +44,6 @@ public class UserClient extends Application {
         primaryStage.show();
 
         primaryStage.setOnCloseRequest(event -> {
-            System.out.println("Stage is closing");
             Platform.exit();
             System.exit(0);
         });
@@ -73,7 +73,7 @@ public class UserClient extends Application {
 
             //Get and instance of UserNode controller
             UserNode controller = loader. <UserNode> getController();
-            controller.initData(hostName,portNumber);
+            controller.initData(hostName,portNumber,stage);
             stage.show();
 
             //Display the Chat box
