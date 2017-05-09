@@ -1,6 +1,7 @@
 package securechat;
 /**
  * Created by gideon on 08/05/17.
+ * This class is what greets the user on application start
  */
 
 import javafx.application.Application;
@@ -42,21 +43,36 @@ public class UserClient extends Application {
         });
     }
 
+    /* When the Connect button is clicked the input is taken from the input boxes and is passed on to the UserNode controller
+     */
     @FXML
     void onConnectButtonClick(MouseEvent event) throws IOException {
-        System.out.println("The host name is " + hostNameBox.getText());
-        System.out.println("The port number is " + portNumberBox.getText());
+        String hostName = hostNameBox.getText();
+        String portNumber = portNumberBox.getText();
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("userinterface/NodeUI.fxml"));
-        //        Parent p = FXMLLoader.load(getClass().getResource("NodeUI.fxml"));
-        //        Scene sc = new Scene(p);
-        Stage stage = new Stage();
-        stage.setScene(new Scene((Pane) loader.load()));
-        UserNode controller = loader. <UserNode> getController();
-        controller.initData(hostNameBox.getText(), portNumberBox.getText());
-        stage.show();
+        //Sanitize the data if possible
+        if (hostName == null || hostName.isEmpty() || portNumber == null || portNumber.isEmpty())
+        {
+            hostNameBox.setText("");
+            portNumberBox.setText("");
+            hostNameBox.setPromptText("Enter valid hostname");
+            portNumberBox.setPromptText("Enter valid port number");
+        }
+        else
+        {
+            //Load the UI for Chat box
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("userinterface/NodeUI.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene((Pane) loader.load()));
 
-        Stage primaryStage = (Stage)((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        primaryStage.close();
+            //Get and instance of UserNode controller
+            UserNode controller = loader. <UserNode> getController();
+            controller.initData(hostName,portNumber);
+            stage.show();
+
+            //Display the Chat box
+            Stage primaryStage = (Stage)((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            primaryStage.close();
+        }
     }
 }
