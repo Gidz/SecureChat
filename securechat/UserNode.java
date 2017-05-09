@@ -12,6 +12,7 @@ package securechat;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -19,6 +20,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import securechat.libs.AES;
 import securechat.libs.Message;
@@ -106,9 +109,8 @@ public class UserNode extends Application {
         }
     }
 
-    //What happens when send message button is clicked
-    @FXML
-    public void onClicksendMessageButton() {
+    void handleSend()
+    {
         if (stopChat)
         {
             updateDisplay("Please wait until the key exchange is complete\n");
@@ -142,6 +144,11 @@ public class UserNode extends Application {
             new User().sendMessage(m, TTP_PORT);
         }
     }
+    //What happens when send message button is clicked
+    @FXML
+    public void onClicksendMessageButton() {
+        handleSend();
+    }
 
     //Get the data from the previous screen
     @FXML
@@ -153,12 +160,26 @@ public class UserNode extends Application {
 
         //Define what happens when user presses close button
         stage.setOnCloseRequest(e -> {
-            Message m = new Message("QUIT",new byte[1], UserNode.NODE_NUMBER);
-            new User().sendMessage(m,UserNode.TTP_PORT);
-            Platform.exit();
-            System.exit(0);
+            if (NODE_NUMBER != -1)
+            {
+                Message m = new Message("QUIT",new byte[1], UserNode.NODE_NUMBER);
+                new User().sendMessage(m,UserNode.TTP_PORT);
+                Platform.exit();
+                System.exit(0);
+            }
         });
 
+        userInputBox.setOnKeyPressed(new EventHandler<KeyEvent>()
+        {
+            @Override
+            public void handle(KeyEvent ke)
+            {
+                if (ke.getCode().equals(KeyCode.ENTER))
+                {
+                    handleSend();
+                }
+            }
+        });
         //Run this on a separate thread so that UI thread won't be blocked
         new Thread(() -> {
             try {

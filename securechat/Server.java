@@ -2,6 +2,7 @@ package securechat;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,6 +10,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import securechat.libs.Message;
 
@@ -71,6 +74,7 @@ public class Server extends Application {
             }
         }).start();
         startButton.setDisable(true);
+        serverPortNumber.setDisable(true);
     }
 
     @FXML
@@ -141,10 +145,15 @@ public class Server extends Application {
                 if (users.size() == 1) {
                     sendMessage(new Message("UPDATE_NODE_NUMBER", "0"), port);
                     sendMessage(new Message("INFO", "TTP Server : Waiting for the other user to join."), port);
-                } else {
+                } else if(users.size() == 2){
                     sendMessage(new Message("UPDATE_NODE_NUMBER", "1"), port);
                     sendToAll(new Message("INFO", "TTP Server : All the users joined. You can begin chat now"));
                     sendToAll(new Message("EXCHANGE_RSA_PUBLIC_KEY", ""));
+                }
+                else
+                {
+                    sendMessage(new Message("UPDATE_NODE_NUMBER", "-1"), port);
+                    sendMessage(new Message("INFO", "TTP Server : Unfortunately the Server is handling connections at its maximum capacity. Please try again later\n"), port);
                 }
             } else if (messageType.equals("INFO")) {
                 //Just display it on screen
