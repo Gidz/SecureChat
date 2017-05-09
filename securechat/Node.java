@@ -17,6 +17,7 @@ import securechat.libs.AES;
 import securechat.libs.Message;
 
 import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
 import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
@@ -34,19 +35,20 @@ import java.util.Scanner;
 
 public class Node extends Application {
 
-    static int PORT_NUMBER;
-    public static int TTP_PORT;
-    public static int NODE_NUMBER;
-    public static boolean stopChat = true;
+    private static int PORT_NUMBER;
+    private static int TTP_PORT;
+    private static int NODE_NUMBER;
+    private static boolean stopChat = true;
 
-    static public KeyPair myDHKeyPair;
-    static public KeyAgreement myKeyAgreement;
-    static public byte[] sharedSecretKey;
-    public static AES aes;
+    private static KeyPair myDHKeyPair;
+    private static  KeyAgreement myKeyAgreement;
+    private static byte[] sharedSecretKey;
+    private static AES aes;
 
     //RSA KEYS
     public static Key RSAPublicKey;
     private static Key RSAPrivateKey;
+    private static PublicKey otherNodesPublicKey;
 
 
     @FXML
@@ -120,12 +122,27 @@ public class Node extends Application {
         updateDisplay("> "+message + "\n");
         userInputBox.setText("");
         byte[] em = null;
+        byte[] md = null;
+        byte[] finalEncryptedHash = null;
         try {
             em = new AES(sharedSecretKey).encrypt(message);
+
+            //Calculate the message disgest
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA");
+            messageDigest.update(message.getBytes("UTF8"));
+            md = messageDigest.digest();
+
+            // get an instance of RSA cipher
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            System.out.println( "\nStart encryption" );
+            cipher.init(Cipher.ENCRYPT_MODE, RSAPrivateKey);
+            finalEncryptedHash = cipher.doFinal(md);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Message m = new Message("CHAT", em, NODE_NUMBER);
+
+        Message m = new Message("CHAT", em,finalEncryptedHash ,NODE_NUMBER);
         new User().sendMessage(m, TTP_PORT);
 
     }
@@ -163,9 +180,6 @@ public class Node extends Application {
             //            System.out.print("Enter the port number of the Third Party Server : ");
 //            TTP_PORT = port;
 
-            startServer(PORT_NUMBER);
-            contactTTP();
-
             //TODO: Implement DSA
             // generate an RSA keypair
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -174,10 +188,18 @@ public class Node extends Application {
             RSAPrivateKey = key.getPrivate();
             RSAPublicKey = key.getPublic();
 
+            startServer(PORT_NUMBER);
+            contactTTP();
+
+
+
+            System.out.println("My public key is "+RSAPublicKey);
+
             Scanner in = new Scanner(System.in);
 
             if (NODE_NUMBER == 0) {
-                System.out.println("Press Enter to start chat"); in .nextLine();
+//                System.out.println("Press Enter to start chat");
+                in .nextLine();
             } else {
                 while (stopChat) { in .nextLine();
                     System.out.println("Please wait till the shared key is calculated");
@@ -219,6 +241,10 @@ public class Node extends Application {
             sendMessage(new Message("INITIALIZATION", "" + PORT_NUMBER), TTP_PORT);
         }
 
+        public void exchangeRSAPublicKeys()
+        {
+            System.out.println("Initiating RSA Key Exchange");
+        }
 
         public void startKeyExchange() throws NoSuchAlgorithmException, InvalidParameterSpecException, InvalidAlgorithmParameterException, InvalidKeyException {
             DHParameterSpec dhSkipParamSpec;
@@ -299,8 +325,8 @@ public class Node extends Application {
                     e.printStackTrace();
                 }
                 Socket listener = null;
-                System.out.print("Server Started and listening to the port " + this.port);
-                updateDisplay("Server Started and listening to the port " + this.port);
+//                System.out.print("Server Started and listening to the port " + this.port);
+//                updateDisplay("Server Started and listening to the port " + this.port);
 
                 //securechat.node.Server is running always. This is done using this while(true) loop
                 while (true) {
@@ -315,8 +341,30 @@ public class Node extends Application {
                         //Display the message on the standard output
                         if (messageType.equals("CHAT")) {
                             AES aes = new AES(sharedSecretKey);
-                            System.out.println("> " + aes.decrypt(message.getEncryptedMessage()));
-                            updateDisplay("Node "+toggleNumber(NODE_NUMBER)+": "+ aes.decrypt(message.getEncryptedMessage()) + "\n");
+                            String plainText = aes.decrypt(message.getEncryptedMessage());
+                            System.out.println("> " + plainText);
+                            updateDisplay("Node "+toggleNumber(NODE_NUMBER)+": "+ plainText+ "\n");
+
+                            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+                            cipher.init(Cipher.DECRYPT_MODE, otherNodesPublicKey);
+                            byte[] md = cipher.doFinal(message.getHash());
+
+                            MessageDigest messageDigest = MessageDigest.getInstance("SHA");
+                            messageDigest.update(plainText.getBytes());
+                            byte[] calculated_md = messageDigest.digest();
+
+                            updateDisplay(toHexString(md)+"\n");
+                            updateDisplay(toHexString(calculated_md)+"\n");
+
+                            if(toHexString(calculated_md).equals(toHexString(md)))
+                            {
+                                System.out.println("Message is Authenticated and its Integrity is verified!\n");
+                                updateDisplay("Message is Authenticated and its Integrity is verified!\n");
+                            }
+                            else {
+                                updateDisplay("Authentication is not verified :( ");
+                            }
+
                         } else if (messageType.equals("UPDATE_NODE_NUMBER")) {
                             NODE_NUMBER = Integer.parseInt(message.getMessage());
                             System.out.println("The securechat.node number is " + NODE_NUMBER);
@@ -365,7 +413,23 @@ public class Node extends Application {
                         } else if (messageType.equals("START_CHAT")) {
                             stopChat = false;
                             System.out.print("Key calculation successful. Press Enter to proceed to chat.");
-                        } else if (messageType.equals("EXCHANGE_KEYS")) {
+                        }
+                        else if (messageType.equals("EXCHANGE_RSA_PUBLIC_KEY"))
+                        {
+                            sendMessage(new Message("RSA_PUBLIC_KEY",RSAPublicKey.getEncoded(),NODE_NUMBER),TTP_PORT);
+                        }
+                        else if(messageType.equals("RSA_PUBLIC_KEY"))
+                        {
+                            otherNodesPublicKey =
+                                    KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(message.getEncryptedMessage()));
+                            System.out.println("The other node's public key is "+otherNodesPublicKey);
+                            if(NODE_NUMBER==0)
+                            {
+                                startKeyExchange();
+                            }
+
+                        }
+                        else if (messageType.equals("EXCHANGE_KEYS")) {
                             startKeyExchange();
                         } else {
                             System.out.print("> " + message.getMessage());

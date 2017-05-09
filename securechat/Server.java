@@ -127,7 +127,6 @@ public class Server extends Application {
             if (messageType.equals("INITIALIZATION")) {
                 updateDisplay("> " + m.getMessage() + "\n");
                 int port = Integer.parseInt(m.getMessage());
-
                 //Update the users list on the server
                 users.add(port);
                 //            printOnlineUsers();
@@ -137,7 +136,8 @@ public class Server extends Application {
                 } else {
                     sendMessage(new Message("UPDATE_NODE_NUMBER", "1"), port);
                     sendToAll(new Message("INFO", "All the users joined. You can begin chat now"));
-                    sendMessage(new Message("EXCHANGE_KEYS", ""), users.get(0));
+//                    sendMessage(new Message("EXCHANGE_KEYS", ""), users.get(0));
+                    sendToAll(new Message("EXCHANGE_RSA_PUBLIC_KEY", ""));
                 }
             } else if (messageType.equals("INFO")) {
                 //Just display it on screen
@@ -151,6 +151,10 @@ public class Server extends Application {
                 updateDisplay("\n");
 
                 //Sending the message to another securechat.node
+                invokeToggleSender(m);
+            }
+            else if(messageType.equals("RSA_PUBLIC_KEY"))
+            {
                 invokeToggleSender(m);
             }
             //The key exchange protocol
