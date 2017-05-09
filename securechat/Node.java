@@ -112,7 +112,7 @@ public class Node extends Application {
     @FXML
     public void onClicksendMessageButton() {
         String message = userInputBox.getText();
-        updateDisplay(message + "\n");
+        updateDisplay("> "+message + "\n");
         userInputBox.setText("");
         byte[] em = null;
         try {
@@ -266,6 +266,17 @@ public class Node extends Application {
             public ServerTask(int port) {
                 this.port = port;
             }
+            public int toggleNumber(int num)
+            {
+                if(num==0)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
             @Override
             public void run() {
                 ServerSocket serverSocket = null;
@@ -292,7 +303,7 @@ public class Node extends Application {
                         if (messageType.equals("CHAT")) {
                             AES aes = new AES(sharedSecretKey);
                             System.out.println("> " + aes.decrypt(message.getEncryptedMessage()));
-                            updateDisplay("> " + aes.decrypt(message.getEncryptedMessage()) + "\n");
+                            updateDisplay("Node "+toggleNumber(NODE_NUMBER)+": "+ aes.decrypt(message.getEncryptedMessage()) + "\n");
                         } else if (messageType.equals("UPDATE_NODE_NUMBER")) {
                             NODE_NUMBER = Integer.parseInt(message.getMessage());
                             System.out.println("The securechat.node number is " + NODE_NUMBER);
