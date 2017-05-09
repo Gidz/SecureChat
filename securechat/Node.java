@@ -161,6 +161,17 @@ public class Node extends Application {
             startServer(PORT_NUMBER);
             contactTTP();
 
+
+            // generate an RSA keypair
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(1024);
+            KeyPair key = keyGen.generateKeyPair();
+            Key privateKey = key.getPrivate();
+            Key publicKey = key.getPublic();
+
+            System.out.println("Public key is: "+publicKey);
+            System.out.println("Private key is: "+privateKey);
+
             Scanner in = new Scanner(System.in);
 
             if (NODE_NUMBER == 0) {
