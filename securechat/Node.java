@@ -41,7 +41,7 @@ public class Node extends Application {
     private static boolean stopChat = true;
 
     private static KeyPair myDHKeyPair;
-    private static  KeyAgreement myKeyAgreement;
+    private static KeyAgreement myKeyAgreement;
     private static byte[] sharedSecretKey;
     private static AES aes;
 
@@ -119,7 +119,7 @@ public class Node extends Application {
     @FXML
     public void onClicksendMessageButton() {
         String message = userInputBox.getText();
-        updateDisplay("> "+message + "\n");
+        updateDisplay("> " + message + "\n");
         userInputBox.setText("");
         byte[] em = null;
         byte[] md = null;
@@ -134,7 +134,7 @@ public class Node extends Application {
 
             // get an instance of RSA cipher
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            System.out.println( "\nStart encryption" );
+            System.out.println("\nStart encryption");
             cipher.init(Cipher.ENCRYPT_MODE, RSAPrivateKey);
             finalEncryptedHash = cipher.doFinal(md);
 
@@ -142,16 +142,15 @@ public class Node extends Application {
             e.printStackTrace();
         }
 
-        Message m = new Message("CHAT", em,finalEncryptedHash ,NODE_NUMBER);
+        Message m = new Message("CHAT", em, finalEncryptedHash, NODE_NUMBER);
         new User().sendMessage(m, TTP_PORT);
 
     }
 
     @FXML
-    public void initData(String hostname,String portNumber)
-    {
+    public void initData(String hostname, String portNumber) {
         TTP_PORT = Integer.parseInt(portNumber);
-        System.out.println("Set the port number to"+TTP_PORT);
+        System.out.println("Set the port number to" + TTP_PORT);
     }
 
     public class User {
@@ -178,7 +177,7 @@ public class Node extends Application {
             System.out.println("Randomly selected " + PORT_NUMBER + "\n");
             //
             //            System.out.print("Enter the port number of the Third Party Server : ");
-//            TTP_PORT = port;
+            //            TTP_PORT = port;
 
             //TODO: Implement DSA
             // generate an RSA keypair
@@ -193,12 +192,12 @@ public class Node extends Application {
 
 
 
-            System.out.println("My public key is "+RSAPublicKey);
+            System.out.println("My public key is " + RSAPublicKey);
 
             Scanner in = new Scanner(System.in);
 
             if (NODE_NUMBER == 0) {
-//                System.out.println("Press Enter to start chat");
+                //                System.out.println("Press Enter to start chat");
                 in .nextLine();
             } else {
                 while (stopChat) { in .nextLine();
@@ -241,8 +240,7 @@ public class Node extends Application {
             sendMessage(new Message("INITIALIZATION", "" + PORT_NUMBER), TTP_PORT);
         }
 
-        public void exchangeRSAPublicKeys()
-        {
+        public void exchangeRSAPublicKeys() {
             System.out.println("Initiating RSA Key Exchange");
         }
 
@@ -305,14 +303,10 @@ public class Node extends Application {
             public ServerTask(int port) {
                 this.port = port;
             }
-            public int toggleNumber(int num)
-            {
-                if(num==0)
-                {
+            public int toggleNumber(int num) {
+                if (num == 0) {
                     return 1;
-                }
-                else
-                {
+                } else {
                     return 0;
                 }
             }
@@ -325,8 +319,8 @@ public class Node extends Application {
                     e.printStackTrace();
                 }
                 Socket listener = null;
-//                System.out.print("Server Started and listening to the port " + this.port);
-//                updateDisplay("Server Started and listening to the port " + this.port);
+                //                System.out.print("Server Started and listening to the port " + this.port);
+                //                updateDisplay("Server Started and listening to the port " + this.port);
 
                 //securechat.node.Server is running always. This is done using this while(true) loop
                 while (true) {
@@ -343,7 +337,7 @@ public class Node extends Application {
                             AES aes = new AES(sharedSecretKey);
                             String plainText = aes.decrypt(message.getEncryptedMessage());
                             System.out.println("> " + plainText);
-                            updateDisplay("Node "+toggleNumber(NODE_NUMBER)+": "+ plainText+ "\n");
+                            updateDisplay("Node " + toggleNumber(NODE_NUMBER) + ": " + plainText + "\n");
 
                             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
                             cipher.init(Cipher.DECRYPT_MODE, otherNodesPublicKey);
@@ -353,15 +347,13 @@ public class Node extends Application {
                             messageDigest.update(plainText.getBytes());
                             byte[] calculated_md = messageDigest.digest();
 
-                            updateDisplay(toHexString(md)+"\n");
-                            updateDisplay(toHexString(calculated_md)+"\n");
+                            updateDisplay(toHexString(md) + "\n");
+                            updateDisplay(toHexString(calculated_md) + "\n");
 
-                            if(toHexString(calculated_md).equals(toHexString(md)))
-                            {
+                            if (toHexString(calculated_md).equals(toHexString(md))) {
                                 System.out.println("Message is Authenticated and its Integrity is verified!\n");
                                 updateDisplay("Message is Authenticated and its Integrity is verified!\n");
-                            }
-                            else {
+                            } else {
                                 updateDisplay("Authentication is not verified :( ");
                             }
 
@@ -413,23 +405,17 @@ public class Node extends Application {
                         } else if (messageType.equals("START_CHAT")) {
                             stopChat = false;
                             System.out.print("Key calculation successful. Press Enter to proceed to chat.");
-                        }
-                        else if (messageType.equals("EXCHANGE_RSA_PUBLIC_KEY"))
-                        {
-                            sendMessage(new Message("RSA_PUBLIC_KEY",RSAPublicKey.getEncoded(),NODE_NUMBER),TTP_PORT);
-                        }
-                        else if(messageType.equals("RSA_PUBLIC_KEY"))
-                        {
+                        } else if (messageType.equals("EXCHANGE_RSA_PUBLIC_KEY")) {
+                            sendMessage(new Message("RSA_PUBLIC_KEY", RSAPublicKey.getEncoded(), NODE_NUMBER), TTP_PORT);
+                        } else if (messageType.equals("RSA_PUBLIC_KEY")) {
                             otherNodesPublicKey =
                                     KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(message.getEncryptedMessage()));
-                            System.out.println("The other node's public key is "+otherNodesPublicKey);
-                            if(NODE_NUMBER==0)
-                            {
+                            System.out.println("The other node's public key is " + otherNodesPublicKey);
+                            if (NODE_NUMBER == 0) {
                                 startKeyExchange();
                             }
 
-                        }
-                        else if (messageType.equals("EXCHANGE_KEYS")) {
+                        } else if (messageType.equals("EXCHANGE_KEYS")) {
                             startKeyExchange();
                         } else {
                             System.out.print("> " + message.getMessage());

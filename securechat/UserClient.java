@@ -1,4 +1,5 @@
-package securechat;/**
+package securechat;
+/**
  * Created by gideon on 08/05/17.
  */
 
@@ -43,19 +44,19 @@ public class UserClient extends Application {
 
     @FXML
     void onConnectButtonClick(MouseEvent event) throws IOException {
-        System.out.println("The host name is "+hostNameBox.getText());
-        System.out.println("The port number is "+portNumberBox.getText());
+        System.out.println("The host name is " + hostNameBox.getText());
+        System.out.println("The port number is " + portNumberBox.getText());
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("userinterface/NodeUI.fxml"));
-//        Parent p = FXMLLoader.load(getClass().getResource("NodeUI.fxml"));
-//        Scene sc = new Scene(p);
+        //        Parent p = FXMLLoader.load(getClass().getResource("NodeUI.fxml"));
+        //        Scene sc = new Scene(p);
         Stage stage = new Stage();
         stage.setScene(new Scene((Pane) loader.load()));
-        Node controller = loader.<Node>getController();
-        controller.initData(hostNameBox.getText(),portNumberBox.getText());
+        Node controller = loader. < Node > getController();
+        controller.initData(hostNameBox.getText(), portNumberBox.getText());
         stage.show();
 
-        Stage primaryStage = (Stage) ((javafx.scene.Node)event.getSource()).getScene().getWindow();
+        Stage primaryStage = (Stage)((javafx.scene.Node) event.getSource()).getScene().getWindow();
         primaryStage.close();
     }
 }
