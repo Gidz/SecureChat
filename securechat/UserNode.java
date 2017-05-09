@@ -1,7 +1,11 @@
 package securechat;
 /**
  * Created by gideon on 08/05/17.
- *
+  _   _ ___  ___ _ __ _ __   ___   __| | ___
+ | | | / __|/ _ | '__| '_ \ / _ \ / _` |/ _ \
+ | |_| \__ |  __| |  | | | | (_) | (_| |  __/
+  \__,_|___/\___|_|  |_| |_|\___/ \__,_|\___|
+
  * The UserNode is what the user genreally interacts with.
  * This deal with the UI for Sending and Receiving messages.
  */

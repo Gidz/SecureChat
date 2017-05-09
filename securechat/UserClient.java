@@ -1,6 +1,12 @@
 package securechat;
 /**
  * Created by gideon on 08/05/17.
+                         _ _            _
+ _   _ ___  ___ _ __ ___| (_) ___ _ __ | |_
+| | | / __|/ _ | '__/ __| | |/ _ | '_ \| __|
+| |_| \__ |  __| | | (__| | |  __| | | | |_
+ \__,_|___/\___|_|  \___|_|_|\___|_| |_|\__|
+
  * This class is what greets the user on application start
  */
 

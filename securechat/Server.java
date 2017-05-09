@@ -26,7 +26,16 @@ import java.util.ArrayList;
 
 /**
  * Created by gideon on 07/05/17.
+ * The TTP Server class
+ _   _
+| |_| |_ _ __  ___  ___ _ ____   _____ _ __
+| __| __| '_ \/ __|/ _ | '__\ \ / / _ | '__|
+| |_| |_| |_) \__ |  __| |   \ V |  __| |
+ \__|\__| .__/|___/\___|_|    \_/ \___|_|
+        |_|
+
  */
+
 public class Server extends Application {
     @FXML
     public Button startButton;
@@ -82,7 +91,7 @@ public class Server extends Application {
         }
     }
 
-
+    //The class which is responsible for the TTP Server
     class TTP {
         int PORT_NUMBER;
         public ArrayList < Integer > users = new ArrayList < > ();
@@ -106,7 +115,7 @@ public class Server extends Application {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    Thread thread = new ServerThread(socket);
+                    Thread thread = new Listener(socket);
                     thread.start();
                 }
             }
@@ -122,6 +131,7 @@ public class Server extends Application {
 
         }
 
+        //Handling the message. Depending on what the type of the message is, the server does different things
         void handleMessage(Message m) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException, InvalidKeyException {
             String messageType = m.getMessageType();
             if (messageType.equals("INITIALIZATION")) {
@@ -129,14 +139,12 @@ public class Server extends Application {
                 int port = Integer.parseInt(m.getStringMessage());
                 //Update the users list on the server
                 users.add(port);
-                //            printOnlineUsers();
                 if (users.size() == 1) {
                     sendMessage(new Message("UPDATE_NODE_NUMBER", "0"), port);
                     sendMessage(new Message("INFO", "Waiting for the other user to join."), port);
                 } else {
                     sendMessage(new Message("UPDATE_NODE_NUMBER", "1"), port);
                     sendToAll(new Message("INFO", "All the users joined. You can begin chat now"));
-//                    sendMessage(new Message("EXCHANGE_KEYS", ""), users.get(0));
                     sendToAll(new Message("EXCHANGE_RSA_PUBLIC_KEY", ""));
                 }
             } else if (messageType.equals("INFO")) {
@@ -153,13 +161,14 @@ public class Server extends Application {
                 //Sending the message to another securechat.node
                 invokeToggleSender(m);
             }
+            //The server does not store the public key anywhere, it just passes it over to the other node
             else if(messageType.equals("RSA_PUBLIC_KEY"))
             {
                 invokeToggleSender(m);
             }
             //The key exchange protocol
             else if (messageType.equals("DH1") || messageType.equals("DH2")) {
-                //Sending the message to another securechat.node
+                //The server does not interfere with the key exchange, it just passes the message on to the other node
                 invokeToggleSender(m);
             } else if (messageType.equals("START_CHAT")) {
                 invokeToggleSender(m);
@@ -168,19 +177,22 @@ public class Server extends Application {
             }
         }
 
+        //Send message
         void sendMessage(Message message, int port) {
-            Thread t = new Thread(new ClientThread(message, port));
+            Thread t = new Thread(new Sender(message, port));
             t.start();
         }
 
+        //Sends message to all the nodes
         void sendToAll(Message message) {
             for (int i = 0; i < users.size(); i++) {
                 int port = users.get(i);
-                Thread t = new Thread(new ClientThread(message, port));
+                Thread t = new Thread(new Sender(message, port));
                 t.start();
             }
         }
 
+        //If message came from node1, then it will be forwarded to node0 and vice versa
         void invokeToggleSender(Message m) {
             if (m.getSender() == 0) {
                 sendMessage(m, users.get(1));
@@ -189,10 +201,10 @@ public class Server extends Application {
             }
         }
 
-        class ClientThread extends Thread implements Runnable {
+        class Sender extends Thread implements Runnable {
             Message message;
             int port;
-            public ClientThread(Message m, int p) {
+            public Sender(Message m, int p) {
                 this.message = m;
                 this.port = p;
             }
@@ -209,9 +221,9 @@ public class Server extends Application {
             }
         }
 
-        class ServerThread extends Thread {
+        class Listener extends Thread {
             Socket socket;
-            public ServerThread(Socket socket) {
+            public Listener(Socket socket) {
                 this.socket = socket;
             }
             public void run() {
@@ -222,7 +234,6 @@ public class Server extends Application {
                     Message message = (Message) tunnelIn.readObject();
                     //Display the message on the screen
                     handleMessage(message);
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (Exception e) {
