@@ -118,6 +118,13 @@ public class Node extends Application {
 
     }
 
+    @FXML
+    public void initData(String hostname,String portNumber)
+    {
+        TTP_PORT = Integer.parseInt(portNumber);
+        System.out.println("Set the port number to"+TTP_PORT);
+    }
+
     public class User {
 
         private String hostname;
@@ -142,7 +149,7 @@ public class Node extends Application {
             System.out.println("Randomly selected " + PORT_NUMBER + "\n");
             //
             //            System.out.print("Enter the port number of the Third Party Server : ");
-            TTP_PORT = port;
+//            TTP_PORT = port;
 
             startServer(PORT_NUMBER);
             contactTTP();

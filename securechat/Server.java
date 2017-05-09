@@ -81,25 +81,38 @@ public class Server extends Application {
         public ArrayList < Integer > users = new ArrayList < > ();
 
         public TTP(int p) {
-            PORT_NUMBER = p;
             ServerSocket serverSocket = null;
-            try {
-                serverSocket = new ServerSocket(PORT_NUMBER);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            updateDisplay("The Server is up and running!\n");
-
-            while (true) {
-                Socket socket = null;
+            try
+            {
+                PORT_NUMBER = p;
                 try {
-                    socket = serverSocket.accept();
+                    serverSocket = new ServerSocket(PORT_NUMBER);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Thread thread = new ServerThread(socket);
-                thread.start();
+                updateDisplay("The Server is up and running!\n");
+
+                while (true) {
+                    Socket socket = null;
+                    try {
+                        socket = serverSocket.accept();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Thread thread = new ServerThread(socket);
+                    thread.start();
+                }
             }
+            finally {
+                if (serverSocket != null) {
+                    try {
+                        serverSocket.close();
+                    } catch (IOException e) {
+                        // log error just in case
+                    }
+                }
+            }
+
         }
 
         void handleMessage(Message m) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException, InvalidKeyException {

@@ -3,17 +3,19 @@ package securechat;/**
  */
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class Connect extends Application {
+public class UserClient extends Application {
 
     public static void main(String[] args) {
         launch(args);
@@ -31,6 +33,12 @@ public class Connect extends Application {
         primaryStage.setTitle("Connect to TTP");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
+
+        primaryStage.setOnCloseRequest(event -> {
+            System.out.println("Stage is closing");
+            Platform.exit();
+            // Save file
+        });
     }
 
     @FXML
@@ -38,10 +46,16 @@ public class Connect extends Application {
         System.out.println("The host name is "+hostNameBox.getText());
         System.out.println("The port number is "+portNumberBox.getText());
 
-        Parent p = FXMLLoader.load(getClass().getResource("NodeUI.fxml"));
-        Scene sc = new Scene(p);
-        Stage newStage = (Stage) ((javafx.scene.Node)event.getSource()).getScene().getWindow();
-        newStage.setScene(sc);
-        newStage.show();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("NodeUI.fxml"));
+//        Parent p = FXMLLoader.load(getClass().getResource("NodeUI.fxml"));
+//        Scene sc = new Scene(p);
+        Stage stage = new Stage();
+        stage.setScene(new Scene((Pane) loader.load()));
+        Node controller = loader.<Node>getController();
+        controller.initData(hostNameBox.getText(),portNumberBox.getText());
+        stage.show();
+
+        Stage primaryStage = (Stage) ((javafx.scene.Node)event.getSource()).getScene().getWindow();
+        primaryStage.close();
     }
 }
