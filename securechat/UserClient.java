@@ -52,7 +52,7 @@ public class UserClient extends Application {
         //        Scene sc = new Scene(p);
         Stage stage = new Stage();
         stage.setScene(new Scene((Pane) loader.load()));
-        Node controller = loader. < Node > getController();
+        UserNode controller = loader. <UserNode> getController();
         controller.initData(hostNameBox.getText(), portNumberBox.getText());
         stage.show();
 

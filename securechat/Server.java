@@ -126,7 +126,7 @@ public class Server extends Application {
             String messageType = m.getMessageType();
             if (messageType.equals("INITIALIZATION")) {
                 updateDisplay("> " + m.getMessage() + "\n");
-                int port = Integer.parseInt(m.getMessage());
+                int port = Integer.parseInt(m.getStringMessage());
                 //Update the users list on the server
                 users.add(port);
                 //            printOnlineUsers();
@@ -144,7 +144,7 @@ public class Server extends Application {
                 updateDisplay("> " + m.getMessage() + "\n");
             } else if (messageType.equals("CHAT")) {
                 byte[] cipher;
-                cipher = m.getEncryptedMessage();
+                cipher = m.getMessage();
                 //Printing out the encrypted message
                 for (int i = 0; i < cipher.length; i++)
                     updateDisplay(new Integer(cipher[i]) + " ");

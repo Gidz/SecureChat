@@ -107,30 +107,6 @@ public class UserNode extends Application {
         }
     }
 
-
-
-    //This is called when "Start Chat" button is clicked
-    @FXML
-    public void onClickstartChat() {
-
-            updateDisplay("You can start the chat . . .\n");
-            startChat.setVisible(false);
-
-            //Run this on a separate thread so that UI thread won't be blocked
-            new Thread(() -> {
-                try {
-                    //Create an instance of the User
-                    user = new User("localhost", "8888");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
-
-            //Enable the Chat box and Send button
-            sendMessageButton.setDisable(false);
-            userInputBox.setDisable(false);
-    }
-
     //What happens when send message button is clicked
     @FXML
     public void onClicksendMessageButton() {
@@ -173,6 +149,22 @@ public class UserNode extends Application {
     public void initData(String hostname, String portNumber) {
         //Update the address of the TTP Server
         TTP_PORT = Integer.parseInt(portNumber);
+
+        updateDisplay("You can start the chat . . .\n");
+
+        //Run this on a separate thread so that UI thread won't be blocked
+        new Thread(() -> {
+            try {
+                //Create an instance of the User
+                user = new User("localhost", "8888");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        //Enable the Chat box and Send button
+        sendMessageButton.setDisable(false);
+        userInputBox.setDisable(false);
     }
 
     public class User {
@@ -310,9 +302,7 @@ public class UserNode extends Application {
                         if (messageType.equals("CHAT")) {
                             AES aes = new AES(sharedSecretKey);
                             String plainText = aes.decrypt(message.getMessage());
-                            System.out.println("> " + plainText);
                             updateDisplay("Node " + toggleNumber(NODE_NUMBER) + ": " + plainText + "\n");
-
                             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
                             cipher.init(Cipher.DECRYPT_MODE, otherNodesPublicKey);
                             byte[] md = cipher.doFinal(message.getHash());
