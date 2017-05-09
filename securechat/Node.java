@@ -44,6 +44,11 @@ public class Node extends Application {
     static public byte[] sharedSecretKey;
     public static AES aes;
 
+    //RSA KEYS
+    public static Key RSAPublicKey;
+    private static Key RSAPrivateKey;
+
+
     @FXML
     public Button sendMessageButton;
 
@@ -161,16 +166,13 @@ public class Node extends Application {
             startServer(PORT_NUMBER);
             contactTTP();
 
-
+            //TODO: Implement DSA
             // generate an RSA keypair
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
             keyGen.initialize(1024);
             KeyPair key = keyGen.generateKeyPair();
-            Key privateKey = key.getPrivate();
-            Key publicKey = key.getPublic();
-
-            System.out.println("Public key is: "+publicKey);
-            System.out.println("Private key is: "+privateKey);
+            RSAPrivateKey = key.getPrivate();
+            RSAPublicKey = key.getPublic();
 
             Scanner in = new Scanner(System.in);
 

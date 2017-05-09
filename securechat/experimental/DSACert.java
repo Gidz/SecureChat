@@ -1,5 +1,6 @@
 package securechat.experimental;
 import java.security.*;
+import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.*;
 
 
@@ -9,14 +10,11 @@ public class DSACert {
 
         byte[] plainText = "s".getBytes("UTF8");
 
-
         MessageDigest messageDigest = MessageDigest.getInstance("SHA");
         messageDigest.update(plainText);
         byte[] md = messageDigest.digest();
         System.out.print( "\nDigest: " );
         System.out.println(toHexString(md));
-
-
 
         // generate an RSA keypair
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -25,8 +23,14 @@ public class DSACert {
         Key privateKey = key.getPrivate();
         Key publicKey = key.getPublic();
 
+        byte[] temp = publicKey.getEncoded();
+        System.out.println("Public key is: "+temp);
         System.out.println("Public key is: "+publicKey);
         System.out.println("Private key is: "+privateKey);
+
+        PublicKey blewah =
+                KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(temp));
+        System.out.println("Decode public key is: "+blewah);
 
         // get an RSA cipher and list the provider
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
